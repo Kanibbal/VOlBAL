@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Acordare Puncte Participant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #a67c00, #4b0082, #0000ff);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        #container {
+            background: linear-gradient(135deg, #ffd700, #9400d3, #0000ff);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            color: #fff;
+        }
+
+        h1 {
+            color: #a67c00;
+        }
+
+        select, input, button {
+            margin: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        select {
+            background: linear-gradient(135deg, #ffd700, #9400d3, #0000ff);
+            color: #fff;
+        }
+
+        input, button {
+            background: linear-gradient(135deg, #ffd700, #9400d3, #0000ff);
+            color: #fff;
+            transition: background 0.3s;
+        }
+
+        input:hover, button:hover {
+            background: linear-gradient(135deg, #a67c00, #ffd700, #9400d3);
+        }
+
+        .name {
+            color: #9400d3; /* Purple color for names */
+        }
+
+        #score-list {
+            display: none;
+        }
+
+        #score-ol {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #score-ol li {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Acordare Puncte Participant</h1>
+        <div id="team-selection">
+            <p>Selectați un Participant.</p>
+            <select id="team-options">
+                <option value="0" class="name">Ade Bicazan</option>
+                <option value="1" class="name">Adela Nicola</option>
+                <option value="2" class="name">Alex Sergiu</option>
+                <option value="3" class="name">Antonio Fogarasi</option>
+                <option value="4" class="name">Casandra Giurcuta</option>
+                <option value="5" class="name">David Szabo</option>
+                <option value="6" class="name">Gratian Ionuț</option>
+                <option value="7" class="name">Ioana Maria Andreica</option>
+                <option value="8" class="name">Mălina Andrea</option>
+                <option value="9" class="name">Maria Vancea</option>
+                <option value="10" class="name">Nicola Marincas</option>
+                <option value="11" class="name">Patrick Patrick</option>
+                <option value="12" class="name">Paul Patricia</option>
+                <option value="13" class="name">Raul Doda</option>
+                <option value="14" class="name">Sebastian Gurzo</option>
+                <option value="15" class="name">Sebok Nicolae</option>
+                <option value="16" class="name">Simona Rus</option>
+                <option value="17" class="name">Sorina Maria</option>
+                <option value="18" class="name">Tomas Florin</option>
+                <option value="19" class="name">Vanesa Pop</option>
+            </select>
+            <input type="number" id="score-input" min="1" max="5">
+            <button id="assign-score">Alocare Scor</button>
+        </div>
+        <button id="start-new-round" style="display: none;">Start New Round</button>
+        <div id="score-list">
+            <h2>Scoruri Participant (Descrescător):</h2>
+            <ol id="score-ol"></ol>
+        </div>
+    </div>
+
+    <script>
+        const teams = [
+            'Ade Bicazan', 'Adela Nicola', 'Alex Sergiu', 'Antonio Fogarasi',
+            'Casandra Giurcuta', 'David Szabo', 'Gratian Ionuț', 'Ioana Maria Andreica', 'Mălina Andrea',
+            'Maria Vancea', 'Nicola Marincas', 'Patrick Patrick', 'Paul Patricia', 'Raul Doda',
+            'Sebastian Gurzo', 'Sebok Nicolae', 'Simona Rus', 'Sorina Maria', 'Tomas Florin', 'Vanesa Pop'
+        ];
+
+        const scores = {};
+        let currentRound = 1;
+        let currentTeamIndex = 0;
+
+        const teamSelect = document.getElementById("team-options");
+        const assignScoreButton = document.getElementById("assign-score");
+        const startNewRoundButton = document.getElementById("start-new-round");
+        const scoreList = document.getElementById("score-list");
+
+        assignScoreButton.addEventListener('click', assignScore);
+        startNewRoundButton.addEventListener('click', startNewRound);
+
+        function assignScore() {
+            const selectedTeam = teams[currentTeamIndex];
+            const scoreInput = document.getElementById("score-input");
+            const score = scoreInput.value;
+
+            if (score >= 1 && score <= 5) {
+                if (!scores[selectedTeam]) {
+                    scores[selectedTeam] = [];
+                }
+
+                scores[selectedTeam].push(parseInt(score));
+
+                if (currentTeamIndex < teams.length - 1) {
+                    currentTeamIndex++;
+                    teamSelect.selectedIndex = currentTeamIndex;
+                } else {
+                    currentTeamIndex = 0;
+
+                    if (currentRound < 5) {
+                        currentRound++;
+                        startNewRoundButton.style.display = "block";
+                        document.getElementById("team-selection").style.display = "none";
+                    } else {
+                        showScoreboard();
+                    }
+                }
+            } else {
+                alert("Introduceți un scor valid între 1 și 5.");
+            }
+        }
+
+        function startNewRound() {
+            currentTeamIndex = 0;
+            document.getElementById("team-selection").style.display = "block";
+            startNewRoundButton.style.display = "none";
+        }
+
+        function showScoreboard() {
+            const scoreOl = document.getElementById("score-ol");
+            scoreOl.innerHTML = '';
+
+            for (const team in scores) {
+                const totalScore = scores[team].reduce((acc, score) => acc + score, 0);
+                const listItem = document.createElement("li");
+                listItem.textContent = `${team} - Scor total: ${totalScore}`;
+                scoreOl.appendChild(listItem);
+            }
+
+            document.getElementById("team-selection").style.display = "none";
+            startNewRoundButton.style.display = "none";
+            scoreList.style.display = "block";
+        }
+    </script>
+</body>
+</html>
